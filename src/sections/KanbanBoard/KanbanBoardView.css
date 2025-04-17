@@ -37,9 +37,9 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     transition: background-color 0.2s ease;
 
-  }
-  
-  .kanban-card:hover {
+  } 
+
+ .kanban-card:hover {
     background-color: #004d8b;
-  }
-  
+    color: #fff;
+  } 

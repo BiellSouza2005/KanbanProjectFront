@@ -13,7 +13,9 @@ export default function KanbanCard({ task }: Props) {
     });
   
     const style = {
-        transform: CSS.Transform.toString(transform),
+        transform: transform
+        ? `translate(${transform.x}px, ${transform.y}px)`
+        : undefined,
         
     };
   
