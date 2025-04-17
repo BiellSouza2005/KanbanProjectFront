@@ -1,0 +1,26 @@
+/* sign-in-view.css */
+.html {
+  background-color: white;
+}
+.sign-in-container {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sign-in-title {
+    color: whitesmoke;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sign-in-subtitle {
+    color: whitesmoke;
+  }
+
+  .eye:focus, button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color; 
+}
