@@ -13,6 +13,9 @@ import { Icon } from "@iconify/react";
 //import { useNavigate } from 'react-router-dom';
 
 import { useRouter } from '../../router/hooks';
+import axios from 'axios';
+import { TaskRegister } from '../../config/base-actions';
+import { CreateTask } from '../../interfaces/kanban-board-types';
 
 //import { Iconify } from 'src/components/iconify';
 
@@ -21,10 +24,36 @@ import { useRouter } from '../../router/hooks';
 export function CreateTaskView() {
 
   const router = useRouter();
+  const [description, setDescription] = useState('');
 
-  const handleCreateTask = useCallback(() => {
-    router.push('/sign-in');
-  }, [router]);
+const handleCreateTask = useCallback(async (task: CreateTask) => {
+  try {
+
+    const response = await TaskRegister(task);
+
+    if (response.status === 200 || response.status === 201) {
+      alert('Tarefa criada com sucesso!');
+      setDescription(''); // limpa o campo após sucesso
+    }
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      alert(error.response?.data?.message || 'Erro ao criar tarefa.');
+    } else {
+      alert('Erro inesperado.');
+    }
+  }
+}, [description]);
+
+const handleSubmit = () => {
+
+
+if (description.trim().split(/\s+/).length < 2) {
+  alert("Por favor, insira uma descrição com pelo menos duas palavras.");
+  return;
+}
+
+  handleCreateTask({ description });
+};
 
 
   const renderForm = (
@@ -39,6 +68,8 @@ export function CreateTaskView() {
         fullWidth
         name="task"
         label="Create task"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
         sx={{ 
           mb: 3
         }}
@@ -59,7 +90,7 @@ export function CreateTaskView() {
         type="submit"
         color="info"
         variant="contained"
-        onClick={handleCreateTask}
+        onClick={handleSubmit}
       >
         Create Task
       </Button>

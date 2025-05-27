@@ -11,6 +11,10 @@ export interface Task {
   userId: number | null;
 }
 
+export interface CreateTask {
+    description: string;
+}
+
 export interface User {
   firstName: string;
   lastName: string;
