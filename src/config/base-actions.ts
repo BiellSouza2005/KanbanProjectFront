@@ -1,7 +1,7 @@
 // src/api/base-actions.ts
 import axios from 'axios';
-import { USER_ENDPOINTS } from './endpoints';
-import { User, UserSignIn } from '../../src/interfaces/kanban-board-types';
+import { TASK_ENDPOINTS, USER_ENDPOINTS } from './endpoints';
+import { CreateTask, Task, User, UserSignIn } from '../../src/interfaces/kanban-board-types';
 
 
 export async function UserRegister(user: User, username: string = 'system') {
@@ -32,3 +32,25 @@ export async function UserLogin(user: UserSignIn) {
       throw error;
     }
   }
+
+function getUserName() {
+  let username = sessionStorage.getItem('username');
+  return username ?? 'system';
+}
+
+export async function TaskRegister(task: CreateTask) {
+  const username = getUserName();
+
+  try {
+    const response = await axios.post(TASK_ENDPOINTS.addTask, task, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Inclusion': username,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
