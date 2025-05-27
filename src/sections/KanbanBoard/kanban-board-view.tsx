@@ -1,9 +1,8 @@
 // src/components/kanban/KanbanBoard.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './KanbanBoardView.css';
 import {
   DndContext,
-  closestCenter,
   DragEndEvent,
 } from '@dnd-kit/core';
 import KanbanColumn from '../../components/kanbanBoardComponents/KanbanColumn';
@@ -16,19 +15,21 @@ const columns: ColumnType[] = ['TODO', 'DOING', 'DONE', 'TESTING', 'COMPLETED'];
 export default function KanbanBoard() {
   const [tasks, setTasks] = useState<Record<ColumnType, Task[]>>(initialTasks as any);
   
-  const findColumnOfTask = (taskId: string): ColumnType | null => {
+  const findColumnOfTask = (id: number): ColumnType | null => {
     for (const col of columns) {
-      if (tasks[col].some((t) => t.id === taskId)) return col;
+      if (tasks[col].some((t) => t.id === id)) return col;
     }
     return null;
   };
+
+
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
 
-    const sourceColumn = findColumnOfTask(active.id as string);
+    const sourceColumn = findColumnOfTask(active.id as number);
     const targetColumn = over.id as ColumnType;
 
     if (!sourceColumn || sourceColumn === targetColumn) return;
@@ -50,6 +51,9 @@ export default function KanbanBoard() {
       [sourceColumn]: prev[sourceColumn].filter((t) => t.id !== active.id),
       [targetColumn]: [...prev[targetColumn], updatedTask],
     }));
+
+    console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
+
   };
 
   return (

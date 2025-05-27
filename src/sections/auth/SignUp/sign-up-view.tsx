@@ -11,8 +11,10 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Icon } from "@iconify/react";
 //import { useNavigate } from 'react-router-dom';
-
+import { UserRegister } from '../../../config/base-actions';
+import { User } from '../../../interfaces/kanban-board-types';
 import { useRouter } from '../../../router/hooks';
+import axios from 'axios';
 
 //import { Iconify } from 'src/components/iconify';
 
@@ -22,14 +24,48 @@ export function SignUpView() {
 
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleSignUp = useCallback(() => {
-    router.push('/sign-in');
-  }, [router]);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleGetStarted = useCallback(() => {
     router.push('/sign-in');
   }, [router]);
+
+
+const handleSignUp = async (user: User) => {
+  try {
+    const response = await UserRegister(user);
+
+    if (response.status === 200 || response.status === 201) {
+      alert('Usuário cadastrado com sucesso!');
+      router.push('/sign-in');
+    }
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      alert(error.response?.data?.message || 'Erro ao cadastrar usuário.');
+      console.log(user);
+    } else {
+      alert('Erro inesperado.');
+    }
+  }
+};
+
+const handleSubmit = () => {
+  if (!firstName || !lastName || !email || !password) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  if (!email.includes('@')) {
+    alert("Por favor, insira um email válido.");
+    return;
+  }
+
+  handleSignUp({ firstName, lastName, email, password });
+};
+
 
   const renderForm = (
     <Box
@@ -50,37 +86,49 @@ export function SignUpView() {
         <TextField
           fullWidth
           name="First name"
+          type="text"
           label="First name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           sx={{ 
             mb: 3
           }}
           slotProps={{
             inputLabel: { shrink: true },
           }}
+          required
         />
 
         <TextField
           fullWidth
           name="Last name"
+          type="text"
           label="Last name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           sx={{ 
             mb: 3
           }}
           slotProps={{
             inputLabel: { shrink: true },
           }}
+          required
         />
     </Box>
       <TextField
         fullWidth
         name="email"
         label="Email address"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         sx={{ 
           mb: 3
         }}
         slotProps={{
           inputLabel: { shrink: true },
         }}
+        required
       />
 
       <TextField
@@ -88,6 +136,8 @@ export function SignUpView() {
         name="password"
         label="Password"
         type={showPassword ? 'text' : 'password'}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         slotProps={{
           inputLabel: { shrink: true },
           input: {
@@ -104,6 +154,7 @@ export function SignUpView() {
           },
         }}
         sx={{ mb: 3 }}
+        required
       />
 
       <Button
@@ -112,7 +163,7 @@ export function SignUpView() {
         type="submit"
         color="info"
         variant="contained"
-        onClick={handleSignUp}
+        onClick={handleSubmit}
       >
         Create account
       </Button>

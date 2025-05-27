@@ -5,19 +5,10 @@ import Sidebar from './components/SideBar';
 import SignInPage from './pages/sign-in';
 import SignUpPage from './pages/sign-up';
 import './App.css'
+import { useAuth } from './sections/auth/authContext';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-      // Verifica se o token está salvo no localStorage
-      const token = sessionStorage.getItem('authtoken');
-      if (token !== null) {
-          setIsAuthenticated(true);
-      }  else {
-          setIsAuthenticated(false);
-      }
-  }, []);
+    const { isAuthenticated } = useAuth();
 
   return (
     <Router>
@@ -26,7 +17,7 @@ function App() {
             <Route
                 path="/sign-up"
                 element={
-                    <SignUpPage /> 
+                    isAuthenticated ? <Navigate to="/sidebar" /> : <SignUpPage /> 
                 }
             />
 
@@ -34,7 +25,7 @@ function App() {
             <Route
                 path="/sign-in"
                 element={
-                    <SignInPage /> 
+                    isAuthenticated ? <Navigate to="/sidebar" /> : <SignInPage /> 
                 }
             />
 
@@ -42,12 +33,16 @@ function App() {
             <Route
                 path="/*"
                 element={
+                    isAuthenticated ? (
                     <div style={{ display: 'flex' }}>
                         <Sidebar />
                         <div style={{ marginLeft: '200px', padding: '20px', width: '100%' }}>
                             <RoutesConfig />
                         </div>
                     </div>
+                    ) : (
+                         <Navigate to="/sign-in" />
+                    )
                 }
             />
         </Routes>

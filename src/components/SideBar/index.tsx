@@ -6,16 +6,11 @@ import { useRouter } from '../../router/hooks';
 
 const Sidebar: React.FC = () => {
   const router = useRouter();
-  
-  const handleSignIn = useCallback(() => {
-    router.push('/sign-in');
-  }, [router]);
 
     const Logout = () => {
         sessionStorage.clear();
-        //window.location.reload(); 
+        window.location.reload(); 
 
-        handleSignIn();
     }
 
     return (
