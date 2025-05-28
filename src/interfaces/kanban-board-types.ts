@@ -1,13 +1,13 @@
 // src/components/kanban/types.ts
 
 export interface Task {
-  id: number;
+  taskId: number;
   description: string;
-  TODO: boolean;
-  DOING: boolean;
-  DONE: boolean;
-  TESTING: boolean;
-  COMPLETED: boolean;
+  toDo: boolean;
+  doing: boolean;
+  done: boolean;
+  testing: boolean;
+  completed: boolean;
   userId: number | null;
 }
 

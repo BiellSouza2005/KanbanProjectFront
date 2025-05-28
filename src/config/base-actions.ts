@@ -63,3 +63,16 @@ export async function TaskRegister(task: CreateTask) {
     throw error;
   }
 }
+
+export async function getTasksByUserId(userId?: number) {
+  try {
+    const url = userId
+      ? `${TASK_ENDPOINTS.getTasks}?userId=${userId}`
+      : TASK_ENDPOINTS.getTasks;
+
+    const response = await axios.get(url);
+    return response.data as Task[];
+  } catch (error) {
+    throw error;
+  }
+}

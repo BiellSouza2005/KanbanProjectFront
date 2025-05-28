@@ -20,7 +20,7 @@ export default function KanbanColumn({ column, tasks }: Props) {
     >
       <h3 style={{ textAlign: 'center' }}>{column}</h3>
       {tasks.map((task) => (
-        <KanbanCard key={task.id} task={task} />
+        <KanbanCard key={task.taskId} task={task} />
       ))}
     </div>
   );

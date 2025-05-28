@@ -8,5 +8,5 @@ export const USER_ENDPOINTS = {
 
 export const TASK_ENDPOINTS = {
   addTask: `${BASE_URL}/Tasks`,
-  getTasksNoAssigned: `${BASE_URL}/Tasks/user`
+  getTasks: `${BASE_URL}/Tasks/user`
 }

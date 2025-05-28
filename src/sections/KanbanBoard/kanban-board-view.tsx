@@ -9,7 +9,7 @@ import KanbanColumn from '../../components/kanbanBoardComponents/KanbanColumn';
 import { Task, ColumnType, GetAllUsers } from '../../interfaces/kanban-board-types';
 import { initialTasks } from './data';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { getAllUsers } from '../../config/base-actions';
+import { getAllUsers, getTasksByUserId } from '../../config/base-actions';
 
 const columns: ColumnType[] = ['TODO', 'DOING', 'DONE', 'TESTING', 'COMPLETED'];
 
@@ -20,7 +20,7 @@ export default function KanbanBoard() {
 
   const findColumnOfTask = (id: number): ColumnType | null => {
     for (const col of columns) {
-      if (tasks[col].some((t) => t.id === id)) return col;
+      if (tasks[col].some((t) => t.taskId === id)) return col;
     }
     return null;
   };
@@ -39,6 +39,39 @@ export default function KanbanBoard() {
     fetchUsers();
   }, []);
 
+useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      const data = await getTasksByUserId(selectedUserId === '' ? undefined : selectedUserId);
+      console.log('Tarefas carregadas:', data);
+
+      const organizedTasks: Record<ColumnType, Task[]> = {
+        TODO: [],
+        DOING: [],
+        DONE: [],
+        TESTING: [],
+        COMPLETED: [],
+      };
+
+      for (const task of data) {
+        if (task.toDo) organizedTasks.TODO.push(task);
+        if (task.doing) organizedTasks.DOING.push(task);
+        if (task.done) organizedTasks.DONE.push(task);
+        if (task.testing) organizedTasks.TESTING.push(task);
+        if (task.completed) organizedTasks.COMPLETED.push(task);
+      }
+
+      setTasks(organizedTasks);
+    } catch (error) {
+      console.error('Erro ao carregar tarefas:', error);
+    }
+  };
+
+  fetchTasks();
+}, [selectedUserId]);
+
+
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -49,21 +82,21 @@ export default function KanbanBoard() {
 
     if (!sourceColumn || sourceColumn === targetColumn) return;
 
-    const taskToMove = tasks[sourceColumn].find((t) => t.id === active.id)!;
+    const taskToMove = tasks[sourceColumn].find((t) => t.taskId === active.id)!;
 
     const updatedTask: Task = {
       ...taskToMove,
-      TODO: false,
-      DOING: false,
-      DONE: false,
-      TESTING: false,
-      COMPLETED: false,
+      toDo: false,
+      doing: false,
+      done: false,
+      testing: false,
+      completed: false,
       [targetColumn]: true,
     };
 
     setTasks((prev) => ({
       ...prev,
-      [sourceColumn]: prev[sourceColumn].filter((t) => t.id !== active.id),
+      [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
       [targetColumn]: [...prev[targetColumn], updatedTask],
     }));
 
@@ -73,7 +106,7 @@ export default function KanbanBoard() {
 
   return (
     <>
-      <FormControl sx={{ m: 2, minWidth: 240 }}>
+      <FormControl sx={{ m: 2, minWidth: 500 }}>
         <InputLabel
           id="user-select-label"
           sx={{
@@ -111,25 +144,45 @@ export default function KanbanBoard() {
                   },
                 }}
         >
-          <MenuItem value="">
-            <em style={{ color: 'black' }}>Todos</em>
+          <MenuItem 
+            value=""
+            sx={{
+                  backgroundColor: 'black',
+                  color: 'white',
+                  '&.Mui-selected': {
+                    backgroundColor: 'black',
+                    color: 'white',
+                  },
+                  '&.Mui-selected:hover': {
+                    backgroundColor: 'white',
+                    color: 'black',
+                  },
+                  '&:hover': {
+                    backgroundColor: 'white',
+                    color: 'black',
+                  },
+                }}
+            >
+            Tasks a serem atribuídas
           </MenuItem>
           {Array.isArray(users) && users.map((user) => (
             <MenuItem 
               key={user.userId} 
               value={user.userId}
               sx={{
-                  backgroundColor: 'white',
-                  color: 'black',
+                  backgroundColor: 'black',
+                  color: 'white',
                   '&.Mui-selected': {
-                    backgroundColor: 'white',
-                    color: 'black',
+                    backgroundColor: 'black',
+                    color: 'white',
                   },
                   '&.Mui-selected:hover': {
                     backgroundColor: 'white',
+                    color: 'black',
                   },
                   '&:hover': {
                     backgroundColor: 'white',
+                    color: 'black',
                   },
                 }}
               >
