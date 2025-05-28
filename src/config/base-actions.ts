@@ -33,6 +33,15 @@ export async function UserLogin(user: UserSignIn) {
     }
   }
 
+export async function getAllUsers() {
+  try {
+    const response = await axios.get(USER_ENDPOINTS.getAllUsers);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 function getUserName() {
   let username = sessionStorage.getItem('username');
   return username ?? 'system';

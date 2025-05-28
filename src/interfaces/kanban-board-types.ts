@@ -22,6 +22,14 @@ export interface User {
   password: string;
 }
 
+export interface GetAllUsers {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
 export interface UserSignIn {
   email: string;
   password: string;
