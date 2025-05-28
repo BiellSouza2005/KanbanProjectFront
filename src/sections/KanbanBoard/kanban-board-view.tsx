@@ -6,12 +6,13 @@ import {
   DragEndEvent,
 } from '@dnd-kit/core';
 import KanbanColumn from '../../components/kanbanBoardComponents/KanbanColumn';
-import { Task, ColumnType, GetAllUsers } from '../../interfaces/kanban-board-types';
+import { Task, GetAllUsers, ColumnType } from '../../interfaces/kanban-board-types';
 import { initialTasks } from './data';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { getAllUsers, getTasksByUserId } from '../../config/base-actions';
+import { updateTaskStatusById } from '../../config/base-actions';
 
-const columns: ColumnType[] = ['TODO', 'DOING', 'DONE', 'TESTING', 'COMPLETED'];
+const columns: ColumnType[] = ['toDo', 'doing', 'testing', 'done', 'completed'];
 
 export default function KanbanBoard() {
   const [tasks, setTasks] = useState<Record<ColumnType, Task[]>>(initialTasks as any);
@@ -46,19 +47,19 @@ useEffect(() => {
       console.log('Tarefas carregadas:', data);
 
       const organizedTasks: Record<ColumnType, Task[]> = {
-        TODO: [],
-        DOING: [],
-        DONE: [],
-        TESTING: [],
-        COMPLETED: [],
+        toDo: [],
+        doing: [],
+        done: [],
+        testing: [],
+        completed: [],
       };
 
       for (const task of data) {
-        if (task.toDo) organizedTasks.TODO.push(task);
-        if (task.doing) organizedTasks.DOING.push(task);
-        if (task.done) organizedTasks.DONE.push(task);
-        if (task.testing) organizedTasks.TESTING.push(task);
-        if (task.completed) organizedTasks.COMPLETED.push(task);
+        if (task.toDo) organizedTasks.toDo.push(task);
+        if (task.doing) organizedTasks.doing.push(task);
+        if (task.done) organizedTasks.done.push(task);
+        if (task.testing) organizedTasks.testing.push(task);
+        if (task.completed) organizedTasks.completed.push(task);
       }
 
       setTasks(organizedTasks);
@@ -72,37 +73,50 @@ useEffect(() => {
 
 
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+const handleDragEnd = async (event: DragEndEvent) => {
+  const { active, over } = event;
 
-    if (!over || active.id === over.id) return;
+  if (!over || active.id === over.id) return;
 
-    const sourceColumn = findColumnOfTask(active.id as number);
-    const targetColumn = over.id as ColumnType;
+  const sourceColumn = findColumnOfTask(active.id as number);
+  const targetColumn = over.id as ColumnType;
 
-    if (!sourceColumn || sourceColumn === targetColumn) return;
+  if (!sourceColumn || sourceColumn === targetColumn) return;
 
-    const taskToMove = tasks[sourceColumn].find((t) => t.taskId === active.id)!;
+  const taskToMove = tasks[sourceColumn].find((t) => t.taskId === active.id)!;
 
-    const updatedTask: Task = {
-      ...taskToMove,
-      toDo: false,
-      doing: false,
-      done: false,
-      testing: false,
-      completed: false,
-      [targetColumn]: true,
-    };
+  const updatedTask: Task = {
+    ...taskToMove,
+    toDo: false,
+    doing: false,
+    done: false,
+    testing: false,
+    completed: false,
+    [targetColumn]: true,
+  };
 
+  // Salva estado anterior para possível rollback
+  setTasks((prev) => ({
+    ...prev,
+    [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
+    [targetColumn]: [...prev[targetColumn], updatedTask],
+  }));
+
+  try {
+    await updateTaskStatusById(taskToMove.taskId, updatedTask);
+    console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
+  } catch (error) {
+    console.error('Erro ao atualizar tarefa:', error);
+
+    // Rollback visual
     setTasks((prev) => ({
       ...prev,
-      [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
-      [targetColumn]: [...prev[targetColumn], updatedTask],
+      [targetColumn]: prev[targetColumn].filter((t) => t.taskId !== active.id),
+      [sourceColumn]: [...prev[sourceColumn], taskToMove],
     }));
-
-    console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
-
-  };
+    alert('Erro ao atualizar tarefa. Movimentação desfeita.');
+  }
+};
 
   return (
     <>

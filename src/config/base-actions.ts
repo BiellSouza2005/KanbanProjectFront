@@ -76,3 +76,21 @@ export async function getTasksByUserId(userId?: number) {
     throw error;
   }
 }
+
+export async function updateTaskStatusById(taskId: number, updatedTask: Task) {
+  const username = getUserName();
+
+  try {
+    const response = await axios.put(`${TASK_ENDPOINTS.putTaskById}/${taskId}`, updatedTask, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Inclusion': username,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+

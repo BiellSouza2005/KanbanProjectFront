@@ -36,5 +36,8 @@ export interface UserSignIn {
 }
   
   export const columns = ['TODO', 'DOING', 'TESTING', 'DONE', 'COMPLETED'] as const;
-  export type ColumnType = typeof columns[number];
+  export type StatusColumnType = typeof columns[number];
+
+  export const statusColumn = ['toDo', 'doing', 'testing', 'done', 'completed'] as const;
+  export type ColumnType = typeof statusColumn[number];
   
