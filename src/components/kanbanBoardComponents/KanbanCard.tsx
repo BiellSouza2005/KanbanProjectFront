@@ -9,7 +9,7 @@ interface Props {
 
 export default function KanbanCard({ task }: Props) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-      id: task.id,
+      id: task.taskId,
     });
   
     const style = {

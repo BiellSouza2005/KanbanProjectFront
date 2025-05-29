@@ -33,6 +33,15 @@ export async function UserLogin(user: UserSignIn) {
     }
   }
 
+export async function getAllUsers() {
+  try {
+    const response = await axios.get(USER_ENDPOINTS.getAllUsers);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 function getUserName() {
   let username = sessionStorage.getItem('username');
   return username ?? 'system';
@@ -54,3 +63,34 @@ export async function TaskRegister(task: CreateTask) {
     throw error;
   }
 }
+
+export async function getTasksByUserId(userId?: number) {
+  try {
+    const url = userId
+      ? `${TASK_ENDPOINTS.getTasks}?userId=${userId}`
+      : TASK_ENDPOINTS.getTasks;
+
+    const response = await axios.get(url);
+    return response.data as Task[];
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function updateTaskStatusById(taskId: number, updatedTask: Task) {
+  const username = getUserName();
+
+  try {
+    const response = await axios.put(`${TASK_ENDPOINTS.putTaskById}/${taskId}`, updatedTask, {
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Inclusion': username,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
