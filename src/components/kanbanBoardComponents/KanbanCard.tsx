@@ -117,7 +117,10 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
       <div
         ref={setNodeRef}
         className="kanban-card"
-        style={style}
+        style={
+          {...style,
+            backgroundColor: '#e4c210',
+          }}
         {...listeners}
         {...attributes}
         onContextMenu={handleContextMenu}
