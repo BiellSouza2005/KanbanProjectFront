@@ -1,5 +1,5 @@
 // src/components/kanban/KanbanBoard.tsx
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './KanbanBoardView.css';
 import {
   DndContext,
@@ -40,11 +40,9 @@ export default function KanbanBoard() {
     fetchUsers();
   }, []);
 
-useEffect(() => {
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       const data = await getTasksByUserId(selectedUserId === '' ? undefined : selectedUserId);
-      console.log('Tarefas carregadas:', data);
 
       const organizedTasks: Record<ColumnType, Task[]> = {
         toDo: [],
@@ -66,11 +64,11 @@ useEffect(() => {
     } catch (error) {
       console.error('Erro ao carregar tarefas:', error);
     }
-  };
+  }, [selectedUserId]);
 
-  fetchTasks();
-}, [selectedUserId]);
-
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
 
 const handleDragEnd = async (event: DragEndEvent) => {
@@ -95,7 +93,15 @@ const handleDragEnd = async (event: DragEndEvent) => {
     [targetColumn]: true,
   };
 
-  // Salva estado anterior para possível rollback
+  // ⚠️ VERIFICAÇÃO: Apenas admins podem mover para 'completed'
+const isAdmin = sessionStorage.getItem('IsAdmin')?.toLowerCase() === 'true';
+
+  if (!isAdmin && targetColumn === 'completed') {
+    alert('Apenas administradores podem concluir tarefas.');
+    return; // ❌ Não altera nada, o card visualmente volta à posição anterior
+  }
+
+  // Atualiza visualmente a UI imediatamente
   setTasks((prev) => ({
     ...prev,
     [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
@@ -108,7 +114,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
   } catch (error) {
     console.error('Erro ao atualizar tarefa:', error);
 
-    // Rollback visual
+    // Rollback visual em caso de erro na API
     setTasks((prev) => ({
       ...prev,
       [targetColumn]: prev[targetColumn].filter((t) => t.taskId !== active.id),
@@ -209,7 +215,7 @@ const handleDragEnd = async (event: DragEndEvent) => {
       <DndContext onDragEnd={handleDragEnd}>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
           {columns.map((col) => (
-            <KanbanColumn key={col} column={col} tasks={tasks[col]} />
+            <KanbanColumn key={col} column={col} tasks={tasks[col]} onTasksUpdated={fetchTasks} users={users}/>
           ))}
         </div>
       </DndContext>
