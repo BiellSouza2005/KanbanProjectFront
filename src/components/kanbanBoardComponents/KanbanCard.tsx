@@ -14,8 +14,11 @@ import {
   FormControl,
 } from '@mui/material';
 import { useState } from 'react';
-import { updateTaskStatusById } from '../../config/base-actions';
+import { deleteTaskById, updateTaskStatusById } from '../../config/base-actions';
 import '../../sections/KanbanBoard/KanbanBoardView.css';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit'; 
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 interface Props {
   task: Task;
@@ -39,6 +42,7 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
   const [description, setDescription] = useState(task.description);
   const [selectedUserId, setSelectedUserId] = useState<number | ''>(task.userId ?? '');
   const isAdmin = sessionStorage.getItem('IsAdmin') === 'true';
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const handleClickCard = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -80,6 +84,27 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
     }
   };
 
+
+
+  const handleDeleteClick = () => {
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteTaskById(task.taskId); // task é a prop do card
+      setOpenDeleteModal(false);
+      await onTasksUpdated(); // recarrega as tasks
+    } catch (error) {
+      console.error('Erro ao deletar:', error);
+      alert('Erro ao deletar tarefa.');
+    }
+  };
+
   return (
     <>
       <div
@@ -101,7 +126,10 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
         transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
         {isAdmin ? (
-          <Button onClick={handleOpenModal}>Alterar Card</Button>
+          <>
+          <Button onClick={handleOpenModal} startIcon={<EditIcon />}>Alterar Card</Button>
+          <Button onClick={handleDeleteClick} startIcon={<DeleteIcon />} color="error">Deletar</Button>
+          </>
         ) : (
           <Box sx={{ p: 2, color: 'gray' }}>Acesso restrito</Box>
         )}
@@ -142,6 +170,19 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
           </Box>
         </Box>
       </Modal>
+
+
+      <Dialog open={openDeleteModal} onClose={handleCloseDeleteModal}>
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>Tem certeza que deseja deletar esta tarefa?</DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteModal}>Cancelar</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Deletar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </>
   );
 }

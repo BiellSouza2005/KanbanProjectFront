@@ -94,3 +94,13 @@ export async function updateTaskStatusById(taskId: number, updatedTask: Task) {
   }
 }
 
+export const deleteTaskById = async (taskId: number) => {
+  try {
+    const response = await axios.patch(`${TASK_ENDPOINTS.softDeleteCardById}/${taskId}`);
+
+    return response.data; // ou qualquer outro valor útil que sua API retorne
+  } catch (error) {
+    console.error('Erro ao deletar tarefa:', error);
+    throw new Error('Erro ao deletar tarefa');
+  }
+};

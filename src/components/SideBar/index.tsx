@@ -22,7 +22,6 @@ const Sidebar: React.FC = () => {
                 {isAdmin && (
                 <li><Link to="/create-task">Create Task</Link></li>
                 )}
-                <li><Link to="/account">Account Information</Link></li>
                 {/* Adicione outros links conforme necessário */}
             </ul>
             <Button 
