@@ -6,6 +6,7 @@ import { useRouter } from '../../router/hooks';
 
 const Sidebar: React.FC = () => {
   const router = useRouter();
+  const isAdmin = sessionStorage.getItem('IsAdmin') === 'true';
 
     const Logout = () => {
         sessionStorage.clear();
@@ -17,7 +18,10 @@ const Sidebar: React.FC = () => {
         <nav className="sidebar">
             <ul>
                 <li><Link to="/board">Board</Link></li>
+                {/* Exibe somente se isAdmin for true */}
+                {isAdmin && (
                 <li><Link to="/create-task">Create Task</Link></li>
+                )}
                 <li><Link to="/account">Account Information</Link></li>
                 {/* Adicione outros links conforme necessário */}
             </ul>

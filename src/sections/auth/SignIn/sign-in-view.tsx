@@ -29,7 +29,7 @@ export function SignInView() {
       const response = await UserLogin(user);
   
       if (response.status === 200 || response.status === 201) {
-        login(response.data.token, response.data.user.email);
+        login(response.data.token, response.data.user.email, response.data.user.isAdmin);
 
         NavigateSideBar();
       }

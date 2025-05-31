@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 
 interface AuthContextProps {
   isAuthenticated: boolean;
-  login: (token: string, username: string) => void;
+  login: (token: string, username: string, isAdmin: boolean) => void;
   logout: () => void;
 }
 
@@ -18,9 +18,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = (token: string, username: string) => {
+  const login = (token: string, username: string, isAdmin: boolean) => {
     sessionStorage.setItem('authtoken', token);
     sessionStorage.setItem('username', username);
+    sessionStorage.setItem('IsAdmin', String(isAdmin))
     setIsAuthenticated(true);
   };
 
