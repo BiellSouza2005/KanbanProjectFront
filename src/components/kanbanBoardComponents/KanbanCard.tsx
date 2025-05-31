@@ -38,6 +38,7 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState(task.description);
   const [selectedUserId, setSelectedUserId] = useState<number | ''>(task.userId ?? '');
+  const isAdmin = sessionStorage.getItem('IsAdmin') === 'true';
 
   const handleClickCard = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -53,6 +54,7 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
   };
 
   const handleOpenModal = () => {
+    if (!isAdmin) return;
     setOpenModal(true);
     handleClosePopover();
   };
@@ -98,7 +100,11 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
         anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Button onClick={handleOpenModal}>Alterar Card</Button>
+        {isAdmin ? (
+          <Button onClick={handleOpenModal}>Alterar Card</Button>
+        ) : (
+          <Box sx={{ p: 2, color: 'gray' }}>Acesso restrito</Box>
+        )}
       </Popover>
 
       <Modal open={openModal} onClose={handleCloseModal}>
