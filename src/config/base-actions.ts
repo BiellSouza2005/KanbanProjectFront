@@ -64,7 +64,7 @@ export async function TaskRegister(task: CreateTask) {
   }
 }
 
-export async function getTasksByUserId(userId?: number) {
+export async function getTasksByUserId(userId?: number): Promise<Task[]> {
   try {
     const url = userId
       ? `${TASK_ENDPOINTS.getTasks}?userId=${userId}`
@@ -73,6 +73,13 @@ export async function getTasksByUserId(userId?: number) {
     const response = await axios.get(url);
     return response.data as Task[];
   } catch (error) {
+    if (axios.isAxiosError(error)) {
+      // Verifica se o status é 404 (Not Found)
+      if (error.response?.status === 404) {
+        return []; // Nenhuma task encontrada, retorna array vazio
+      }
+    }
+    // Outros erros permanecem sendo lançados
     throw error;
   }
 }

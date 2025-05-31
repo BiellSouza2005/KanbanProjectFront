@@ -40,6 +40,12 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [description, setDescription] = useState(task.description);
+  const formatDate = (dateString: Date | null | undefined) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Retorna 'yyyy-MM-dd'
+  };
+  const [dueDate, setDueDate] = useState(formatDate(task.dueDate));
   const [selectedUserId, setSelectedUserId] = useState<number | ''>(task.userId ?? '');
   const isAdmin = sessionStorage.getItem('IsAdmin') === 'true';
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -74,6 +80,7 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
       ...task,
       description,
       userId: selectedUserId === '' ? null : selectedUserId,
+      dueDate: dueDate ? new Date(dueDate) : null
     };
     try {
       await updateTaskStatusById(task.taskId, updatedTask);
@@ -116,6 +123,7 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
         onContextMenu={handleContextMenu}
       >
         <div>{task.description}</div>
+        <div>Due Date: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'Sem data definida'}</div>
       </div>
 
       <Popover
@@ -144,6 +152,16 @@ export default function KanbanCard({ task, onTasksUpdated, users }: Props) {
             onChange={(e) => setDescription(e.target.value)}
             sx={{ marginBottom: 2 }}
           />
+          <TextField
+            label="Data de vencimento"
+            type="date"
+            fullWidth
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)} 
+            sx={{ marginBottom: 2 }}
+            InputLabelProps={{ shrink: true }}
+          />
+
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
             <InputLabel id="user-select-label">Atribuir a</InputLabel>
             <Select

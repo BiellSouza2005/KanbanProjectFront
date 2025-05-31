@@ -3,6 +3,7 @@
 export interface Task {
   taskId: number;
   description: string;
+  dueDate: Date | null;
   toDo: boolean;
   doing: boolean;
   done: boolean;
@@ -13,6 +14,7 @@ export interface Task {
 
 export interface CreateTask {
     description: string;
+    dueDate: Date;
 }
 
 export interface User {

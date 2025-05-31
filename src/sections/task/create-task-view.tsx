@@ -1,23 +1,17 @@
 import { useState, useCallback } from 'react';
 import './CreateTaskView.css';
-
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
-//import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Icon } from "@iconify/react";
-//import { useNavigate } from 'react-router-dom';
-
 import { useRouter } from '../../router/hooks';
 import axios from 'axios';
 import { TaskRegister } from '../../config/base-actions';
 import { CreateTask } from '../../interfaces/kanban-board-types';
-
-//import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +19,7 @@ export function CreateTaskView() {
 
   const router = useRouter();
   const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState<string>(''); 
 
 const handleCreateTask = useCallback(async (task: CreateTask) => {
   try {
@@ -34,6 +29,7 @@ const handleCreateTask = useCallback(async (task: CreateTask) => {
     if (response.status === 200 || response.status === 201) {
       alert('Tarefa criada com sucesso!');
       setDescription(''); // limpa o campo após sucesso
+      setDueDate('');
     }
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
@@ -42,17 +38,15 @@ const handleCreateTask = useCallback(async (task: CreateTask) => {
       alert('Erro inesperado.');
     }
   }
-}, [description]);
+}, [description, dueDate]);
 
 const handleSubmit = () => {
-
-
 if (description.trim().split(/\s+/).length < 2) {
   alert("Por favor, insira uma descrição com pelo menos duas palavras.");
   return;
 }
 
-  handleCreateTask({ description });
+  handleCreateTask({ description, dueDate: new Date(dueDate) });
 };
 
 
@@ -84,6 +78,17 @@ if (description.trim().split(/\s+/).length < 2) {
           },
         }}
       />
+
+      <TextField
+        fullWidth
+        type="date"
+        label="Data de vencimento"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+        sx={{ mb: 3 }}
+        InputLabelProps={{ shrink: true }}
+      />
+
       <Button
         fullWidth
         size="large"
