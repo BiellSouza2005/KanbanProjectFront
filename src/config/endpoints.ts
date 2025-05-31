@@ -9,5 +9,6 @@ export const USER_ENDPOINTS = {
 export const TASK_ENDPOINTS = {
   addTask: `${BASE_URL}/Tasks`,
   getTasks: `${BASE_URL}/Tasks/user`,
-  putTaskById: `${BASE_URL}/Tasks/status`
+  putTaskById: `${BASE_URL}/Tasks/status`,
+  softDeleteCardById: `${BASE_URL}/Tasks/deactivate`
 }
