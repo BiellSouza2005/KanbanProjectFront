@@ -1,58 +1,121 @@
-<<<<<<< HEAD
-# React + TypeScript + Vite
+# 🗂️ Projeto Kanban
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📖 Sobre o Projeto
 
-Currently, two official plugins are available:
+Este é um projeto de um quadro **Kanban** desenvolvido para otimizar o gerenciamento de tarefas em equipe.  
+A aplicação permite a **criação, atribuição e acompanhamento** do progresso das atividades de forma intuitiva e organizada, com diferentes níveis de permissão para administradores e usuários comuns.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> O layout e a estrutura do projeto foram inspirados no template **Minimals UI**, buscando uma interface limpa, moderna e funcional.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Funcionalidades Principais
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 🔐 Regras de Usuário
+
+O sistema possui dois níveis de acesso com permissões distintas:
+
+#### 👑 Admin
+- Criar, editar e deletar tarefas (tasks).
+- Atribuir tasks a qualquer usuário.
+- Mover os cards de qualquer usuário entre as colunas do Kanban.
+- **Exclusivo:** Apenas administradores podem mover um card para a coluna **"Completed"**.
+- Visualizar o quadro Kanban de cada colaborador individualmente.
+
+#### 👤 Usuário Comum
+- Visualizar suas próprias tasks.
+- Visualizar o Kanban dos demais usuários e administradores do time.
+- Mover seus próprios cards e os cards de outros membros do time entre as colunas permitidas.
+
+> ℹ️ **Observação:** Toda movimentação de card é registrada no banco de dados, indicando qual usuário realizou a ação.
+
+---
+
+### 🧩 Regras do Kanban
+
+Para garantir a integridade do fluxo de trabalho, as seguintes regras foram implementadas:
+
+- **Conteúdo do Card:** Cada card exibe a descrição da tarefa e sua respectiva data de entrega (_Due date_).
+- **Movimentação de Cards:**  
+  Um card só pode ser movido para a **coluna imediatamente seguinte ou anterior** à sua posição atual.  
+  Exemplo: um card na coluna **"TESTING"** pode ser movido para **"DONE"** (próxima) ou **"DOING"** (anterior), mas **não diretamente para "TODO"**.
+- **Conclusão de Tarefas:**  
+  Apenas usuários com perfil de **Admin** podem mover um card para a coluna **"Completed"**, finalizando a tarefa.
+
+---
+
+## 💻 Tecnologias Utilizadas
+
+Este projeto foi construído com as seguintes tecnologias:
+
+- **React** – Biblioteca para construção de interfaces de usuário.
+- **TypeScript** – Superset do JavaScript que adiciona tipagem estática.
+- **Material-UI (MUI)** – Biblioteca de componentes React para UI moderna.
+- **React Router** – Gerenciamento de rotas.
+- **Axios** – Cliente HTTP baseado em Promises.
+- **dnd-kit** – Biblioteca para funcionalidades de arrastar e soltar.
+- **Iconify** – Biblioteca de ícones.
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+### ✅ Pré-requisitos
+
+Antes de começar, você precisará ter instalado:
+
+- [Git](https://git-scm.com)
+- [Node.js](https://nodejs.org/)
+- Gerenciador de pacotes: **NPM** ou **Yarn**
+
+### 📦 Passo a Passo
+
+Clone o repositório:
+
+```bash
+git clone https://seulinkpararepositorio.com/seu-projeto.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Acesse a pasta do projeto:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+cd Kanban-Project
 ```
-=======
-# KanbanProjectFront
->>>>>>> deffb8b2a3ed50abad2efa6c9763ecc55c7415d1
+Intale as dependências:
+
+```bash
+npm install
+```
+Rode o projeto:
+
+```bash
+npm run dev
+```
+
+Acesse no navegador: http://localhost:5173
+
+
+## 🤝 Colaboradores
+
+Agradecemos às seguintes pessoas que contribuíram para este projeto:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/biellSouza2005" title="GitHub do Gabriel Souza">
+        <img src="https://github.com/biellSouza2005.png" width="100px;" alt="Foto do Gabriel Souza no GitHub"/><br>
+        <sub>
+          <b>Gabriel Souza</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/GustavoAlvesValadao" title="GitHub do Gustavo Valadao">
+        <img src="https://github.com/GustavoAlvesValadao.png" width="100px;" alt="Foto do Gustavo Valadao no GitHub"/><br>
+        <sub>
+          <b>Gustavo Valadao</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+</table>
