@@ -1,26 +1,26 @@
 // src/components/kanban/KanbanBoard.tsx
-import { useCallback, useEffect, useState } from 'react';
-import './KanbanBoardView.css';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import KanbanColumn from '../../components/kanbanBoardComponents/KanbanColumn';
+import { useCallback, useEffect, useState } from "react";
+import "./KanbanBoardView.css";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import KanbanColumn from "../../components/kanbanBoardComponents/KanbanColumn";
 import {
   Task,
   GetAllUsers,
   ColumnType,
-} from '../../interfaces/kanban-board-types';
-import { initialTasks } from './data';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { getAllUsers, getTasksByUserId } from '../../config/base-actions';
-import { updateTaskStatusById } from '../../config/base-actions';
+} from "../../interfaces/kanban-board-types";
+import { initialTasks } from "./data";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { getAllUsers, getTasksByUserId } from "../../config/base-actions";
+import { updateTaskStatusById } from "../../config/base-actions";
 
-const columns: ColumnType[] = ['toDo', 'doing', 'testing', 'done', 'completed'];
+const columns: ColumnType[] = ["toDo", "doing", "testing", "done", "completed"];
 
 export default function KanbanBoard() {
   const [tasks, setTasks] = useState<Record<ColumnType, Task[]>>(
     initialTasks as any
   );
   const [users, setUsers] = useState<GetAllUsers[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<number | ''>('');
+  const [selectedUserId, setSelectedUserId] = useState<number | "">("");
 
   const findColumnOfTask = (id: number): ColumnType | null => {
     for (const col of columns) {
@@ -33,10 +33,10 @@ export default function KanbanBoard() {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        console.log('Usuários carregados:', data);
+        console.log("Usuários carregados:", data);
         setUsers(data);
       } catch (err) {
-        console.error('Erro ao buscar usuários:', err);
+        console.error("Erro ao buscar usuários:", err);
       }
     };
 
@@ -46,7 +46,7 @@ export default function KanbanBoard() {
   const fetchTasks = useCallback(async () => {
     try {
       const data = await getTasksByUserId(
-        selectedUserId === '' ? undefined : selectedUserId
+        selectedUserId === "" ? undefined : selectedUserId
       );
 
       const organizedTasks: Record<ColumnType, Task[]> = {
@@ -67,7 +67,7 @@ export default function KanbanBoard() {
 
       setTasks(organizedTasks);
     } catch (error) {
-      console.error('Erro ao carregar tarefas:', error);
+      console.error("Erro ao carregar tarefas:", error);
     }
   }, [selectedUserId]);
 
@@ -95,26 +95,16 @@ export default function KanbanBoard() {
       return; // ❌ Não altera nada, o card visualmente volta à posição anterior
     }
 
-    // 🚫 Verifica se o movimento está dentro da sequência correta
-    const validFlow: ColumnType[] = [
-      "toDo",
-      "doing",
-      "testing",
-      "done",
-      "completed",
-    ];
-    const sourceIndex = validFlow.indexOf(sourceColumn);
-    const targetIndex = validFlow.indexOf(targetColumn);
+    const sourceIndex = columns.indexOf(sourceColumn);
+    const targetIndex = columns.indexOf(targetColumn);
 
-    // ❌ Se tentar pular etapas (ex: doing → done), nega
-    if (targetIndex !== sourceIndex + 1) {
-      alert(
-        `Movimentação inválida: você precisa mover para "${
-          validFlow[sourceIndex + 1]
-        }" antes.`
-      );
+    // ✅ Permite apenas avanço ou retrocesso de 1 etapa
+    const isOneStepMove = Math.abs(targetIndex - sourceIndex) === 1;
+    if (!isOneStepMove) {
+      alert(`Movimentação inválida: você só pode mover uma etapa por vez.`);
       return;
     }
+    
     const updatedTask: Task = {
       ...taskToMove,
       toDo: false,
@@ -135,7 +125,7 @@ export default function KanbanBoard() {
       await updateTaskStatusById(taskToMove.taskId, updatedTask);
       console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
     } catch (error) {
-      console.error('Erro ao atualizar tarefa:', error);
+      console.error("Erro ao atualizar tarefa:", error);
 
       // Rollback visual em caso de erro na API
       setTasks((prev) => ({
@@ -145,7 +135,7 @@ export default function KanbanBoard() {
         ),
         [sourceColumn]: [...prev[sourceColumn], taskToMove],
       }));
-      alert('Erro ao atualizar tarefa. Movimentação desfeita.');
+      alert("Erro ao atualizar tarefa. Movimentação desfeita.");
     }
   };
 
@@ -155,12 +145,12 @@ export default function KanbanBoard() {
         <InputLabel
           id="user-select-label"
           sx={{
-            color: 'white',
-            '&.Mui-focused': {
-              color: 'white',
+            color: "white",
+            "&.Mui-focused": {
+              color: "white",
             },
-            '&:hover': {
-              color: 'white',
+            "&:hover": {
+              color: "white",
             },
           }}
         >
@@ -173,37 +163,37 @@ export default function KanbanBoard() {
           label="Filtrar por Usuário"
           onChange={(e) => setSelectedUserId(e.target.value as number)}
           sx={{
-            color: 'white',
-            '& .MuiSelect-icon': {
-              color: 'white',
+            color: "white",
+            "& .MuiSelect-icon": {
+              color: "white",
             },
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'white',
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
             },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'white',
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
             },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'white',
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
             },
           }}
         >
           <MenuItem
             value=""
             sx={{
-              backgroundColor: 'black',
-              color: 'white',
-              '&.Mui-selected': {
-                backgroundColor: 'black',
-                color: 'white',
+              backgroundColor: "black",
+              color: "white",
+              "&.Mui-selected": {
+                backgroundColor: "black",
+                color: "white",
               },
-              '&.Mui-selected:hover': {
-                backgroundColor: 'white',
-                color: 'black',
+              "&.Mui-selected:hover": {
+                backgroundColor: "white",
+                color: "black",
               },
-              '&:hover': {
-                backgroundColor: 'white',
-                color: 'black',
+              "&:hover": {
+                backgroundColor: "white",
+                color: "black",
               },
             }}
           >
@@ -215,19 +205,19 @@ export default function KanbanBoard() {
                 key={user.userId}
                 value={user.userId}
                 sx={{
-                  backgroundColor: 'black',
-                  color: 'white',
-                  '&.Mui-selected': {
-                    backgroundColor: 'black',
-                    color: 'white',
+                  backgroundColor: "black",
+                  color: "white",
+                  "&.Mui-selected": {
+                    backgroundColor: "black",
+                    color: "white",
                   },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "white",
+                    color: "black",
                   },
-                  '&:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
+                  "&:hover": {
+                    backgroundColor: "white",
+                    color: "black",
                   },
                 }}
               >
@@ -240,9 +230,9 @@ export default function KanbanBoard() {
       <DndContext onDragEnd={handleDragEnd}>
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '20px',
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "20px",
           }}
         >
           {columns.map((col) => (
