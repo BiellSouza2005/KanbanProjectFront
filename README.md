@@ -76,6 +76,11 @@ Clone o repositório:
 git clone https://seulinkpararepositorio.com/seu-projeto.git
 ```
 
+* **⚠️ Observação Importante:** Certifique-se de que o repositório esteja na branch **main**, caso não esteja:
+```bash
+git checkout main
+```
+
 Acesse a pasta do projeto:
 
 ```bash
