@@ -1,23 +1,26 @@
 // src/components/kanban/KanbanBoard.tsx
-import { useCallback, useEffect, useState } from 'react';
-import './KanbanBoardView.css';
+import { useCallback, useEffect, useState } from "react";
+import "./KanbanBoardView.css";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import KanbanColumn from "../../components/kanbanBoardComponents/KanbanColumn";
 import {
-  DndContext,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import KanbanColumn from '../../components/kanbanBoardComponents/KanbanColumn';
-import { Task, GetAllUsers, ColumnType } from '../../interfaces/kanban-board-types';
-import { initialTasks } from './data';
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { getAllUsers, getTasksByUserId } from '../../config/base-actions';
-import { updateTaskStatusById } from '../../config/base-actions';
+  Task,
+  GetAllUsers,
+  ColumnType,
+} from "../../interfaces/kanban-board-types";
+import { initialTasks } from "./data";
+import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { getAllUsers, getTasksByUserId } from "../../config/base-actions";
+import { updateTaskStatusById } from "../../config/base-actions";
 
-const columns: ColumnType[] = ['toDo', 'doing', 'testing', 'done', 'completed'];
+const columns: ColumnType[] = ["toDo", "doing", "testing", "done", "completed"];
 
 export default function KanbanBoard() {
-  const [tasks, setTasks] = useState<Record<ColumnType, Task[]>>(initialTasks as any);
+  const [tasks, setTasks] = useState<Record<ColumnType, Task[]>>(
+    initialTasks as any
+  );
   const [users, setUsers] = useState<GetAllUsers[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<number | ''>('');  
+  const [selectedUserId, setSelectedUserId] = useState<number | "">("");
 
   const findColumnOfTask = (id: number): ColumnType | null => {
     for (const col of columns) {
@@ -30,10 +33,10 @@ export default function KanbanBoard() {
     const fetchUsers = async () => {
       try {
         const data = await getAllUsers();
-        console.log('Usuários carregados:', data);
+        console.log("Usuários carregados:", data);
         setUsers(data);
       } catch (err) {
-        console.error('Erro ao buscar usuários:', err);
+        console.error("Erro ao buscar usuários:", err);
       }
     };
 
@@ -42,7 +45,9 @@ export default function KanbanBoard() {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const data = await getTasksByUserId(selectedUserId === '' ? undefined : selectedUserId);
+      const data = await getTasksByUserId(
+        selectedUserId === "" ? undefined : selectedUserId
+      );
 
       const organizedTasks: Record<ColumnType, Task[]> = {
         toDo: [],
@@ -62,7 +67,7 @@ export default function KanbanBoard() {
 
       setTasks(organizedTasks);
     } catch (error) {
-      console.error('Erro ao carregar tarefas:', error);
+      console.error("Erro ao carregar tarefas:", error);
     }
   }, [selectedUserId]);
 
@@ -70,59 +75,69 @@ export default function KanbanBoard() {
     fetchTasks();
   }, [fetchTasks]);
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
 
-const handleDragEnd = async (event: DragEndEvent) => {
-  const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-  if (!over || active.id === over.id) return;
+    const sourceColumn = findColumnOfTask(active.id as number);
+    const targetColumn = over.id as ColumnType;
 
-  const sourceColumn = findColumnOfTask(active.id as number);
-  const targetColumn = over.id as ColumnType;
+    if (!sourceColumn || sourceColumn === targetColumn) return;
 
-  if (!sourceColumn || sourceColumn === targetColumn) return;
+    const taskToMove = tasks[sourceColumn].find((t) => t.taskId === active.id)!;
 
-  const taskToMove = tasks[sourceColumn].find((t) => t.taskId === active.id)!;
+    // ⚠️ VERIFICAÇÃO: Apenas admins podem mover para 'completed'
+    const isAdmin = sessionStorage.getItem("IsAdmin")?.toLowerCase() === "true";
 
-  const updatedTask: Task = {
-    ...taskToMove,
-    toDo: false,
-    doing: false,
-    done: false,
-    testing: false,
-    completed: false,
-    [targetColumn]: true,
-  };
+    if (!isAdmin && targetColumn === "completed") {
+      alert("Apenas administradores podem concluir tarefas.");
+      return; // ❌ Não altera nada, o card visualmente volta à posição anterior
+    }
 
-  // ⚠️ VERIFICAÇÃO: Apenas admins podem mover para 'completed'
-const isAdmin = sessionStorage.getItem('IsAdmin')?.toLowerCase() === 'true';
+    const sourceIndex = columns.indexOf(sourceColumn);
+    const targetIndex = columns.indexOf(targetColumn);
 
-  if (!isAdmin && targetColumn === 'completed') {
-    alert('Apenas administradores podem concluir tarefas.');
-    return; // ❌ Não altera nada, o card visualmente volta à posição anterior
-  }
-
-  // Atualiza visualmente a UI imediatamente
-  setTasks((prev) => ({
-    ...prev,
-    [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
-    [targetColumn]: [...prev[targetColumn], updatedTask],
-  }));
-
-  try {
-    await updateTaskStatusById(taskToMove.taskId, updatedTask);
-    console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
-  } catch (error) {
-    console.error('Erro ao atualizar tarefa:', error);
-
-    // Rollback visual em caso de erro na API
+    // ✅ Permite apenas avanço ou retrocesso de 1 etapa
+    const isOneStepMove = Math.abs(targetIndex - sourceIndex) === 1;
+    if (!isOneStepMove) {
+      alert(`Movimentação inválida: você só pode mover uma etapa por vez.`);
+      return;
+    }
+    
+    const updatedTask: Task = {
+      ...taskToMove,
+      toDo: false,
+      doing: false,
+      done: false,
+      testing: false,
+      completed: false,
+      [targetColumn]: true,
+    };
+    // Atualiza visualmente a UI imediatamente
     setTasks((prev) => ({
       ...prev,
-      [targetColumn]: prev[targetColumn].filter((t) => t.taskId !== active.id),
-      [sourceColumn]: [...prev[sourceColumn], taskToMove],
+      [sourceColumn]: prev[sourceColumn].filter((t) => t.taskId !== active.id),
+      [targetColumn]: [...prev[targetColumn], updatedTask],
     }));
-    alert('Erro ao atualizar tarefa. Movimentação desfeita.');
-  }
-};
+
+    try {
+      await updateTaskStatusById(taskToMove.taskId, updatedTask);
+      console.log(`Tarefa ${active.id} movida para a coluna ${targetColumn}`);
+    } catch (error) {
+      console.error("Erro ao atualizar tarefa:", error);
+
+      // Rollback visual em caso de erro na API
+      setTasks((prev) => ({
+        ...prev,
+        [targetColumn]: prev[targetColumn].filter(
+          (t) => t.taskId !== active.id
+        ),
+        [sourceColumn]: [...prev[sourceColumn], taskToMove],
+      }));
+      alert("Erro ao atualizar tarefa. Movimentação desfeita.");
+    }
+  };
 
   return (
     <>
@@ -130,12 +145,12 @@ const isAdmin = sessionStorage.getItem('IsAdmin')?.toLowerCase() === 'true';
         <InputLabel
           id="user-select-label"
           sx={{
-            color: 'white',
-            '&.Mui-focused': {
-              color: 'white',
+            color: "white",
+            "&.Mui-focused": {
+              color: "white",
             },
-            '&:hover': {
-              color: 'white',
+            "&:hover": {
+              color: "white",
             },
           }}
         >
@@ -147,75 +162,87 @@ const isAdmin = sessionStorage.getItem('IsAdmin')?.toLowerCase() === 'true';
           value={selectedUserId}
           label="Filtrar por Usuário"
           onChange={(e) => setSelectedUserId(e.target.value as number)}
-            sx={{
-  
-                  color: 'white',
-                  '& .MuiSelect-icon': {
-                    color: 'white',
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                }}
+          sx={{
+            color: "white",
+            "& .MuiSelect-icon": {
+              color: "white",
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "white",
+            },
+          }}
         >
-          <MenuItem 
+          <MenuItem
             value=""
             sx={{
-                  backgroundColor: 'black',
-                  color: 'white',
-                  '&.Mui-selected': {
-                    backgroundColor: 'black',
-                    color: 'white',
-                  },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
-                  },
-                  '&:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
-                  },
-                }}
-            >
+              backgroundColor: "black",
+              color: "white",
+              "&.Mui-selected": {
+                backgroundColor: "black",
+                color: "white",
+              },
+              "&.Mui-selected:hover": {
+                backgroundColor: "white",
+                color: "black",
+              },
+              "&:hover": {
+                backgroundColor: "white",
+                color: "black",
+              },
+            }}
+          >
             Tasks a serem atribuídas
           </MenuItem>
-          {Array.isArray(users) && users.map((user) => (
-            <MenuItem 
-              key={user.userId} 
-              value={user.userId}
-              sx={{
-                  backgroundColor: 'black',
-                  color: 'white',
-                  '&.Mui-selected': {
-                    backgroundColor: 'black',
-                    color: 'white',
+          {Array.isArray(users) &&
+            users.map((user) => (
+              <MenuItem
+                key={user.userId}
+                value={user.userId}
+                sx={{
+                  backgroundColor: "black",
+                  color: "white",
+                  "&.Mui-selected": {
+                    backgroundColor: "black",
+                    color: "white",
                   },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
+                  "&.Mui-selected:hover": {
+                    backgroundColor: "white",
+                    color: "black",
                   },
-                  '&:hover': {
-                    backgroundColor: 'white',
-                    color: 'black',
+                  "&:hover": {
+                    backgroundColor: "white",
+                    color: "black",
                   },
                 }}
               >
-              {user.firstName + " " + user.lastName + " - " + user.email}
-            </MenuItem>
-          ))}
+                {user.firstName + " " + user.lastName + " - " + user.email}
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
 
       <DndContext onDragEnd={handleDragEnd}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "20px",
+          }}
+        >
           {columns.map((col) => (
-            <KanbanColumn key={col} column={col} tasks={tasks[col]} onTasksUpdated={fetchTasks} users={users}/>
+            <KanbanColumn
+              key={col}
+              column={col}
+              tasks={tasks[col]}
+              onTasksUpdated={fetchTasks}
+              users={users}
+            />
           ))}
         </div>
       </DndContext>
