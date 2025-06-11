@@ -66,7 +66,7 @@ Antes de começar, você precisará ter instalado:
 
 - [Git](https://git-scm.com)
 - [Node.js](https://nodejs.org/)
-- Gerenciador de pacotes: **NPM** ou **Yarn**
+- Gerenciador de pacote: **NPM**
 
 ### 📦 Passo a Passo
 
