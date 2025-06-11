@@ -117,5 +117,21 @@ Agradecemos às seguintes pessoas que contribuíram para este projeto:
         </sub>
       </a>
     </td>
+    <td align="center">
+      <a href="https://github.com/ArthurBerthi505" title="GitHub do Arthur Berthi">
+        <img src="https://github.com/ArthurBerthi505.png" width="100px;" alt="Foto do Arthur Berthi no GitHub"/><br>
+        <sub>
+          <b>Arthur Berthi</b>
+        </sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Freitasss2005" title="GitHub do Maria Freitas">
+        <img src="https://github.com/Freitasss2005.png" width="100px;" alt="Foto do Maria Freitas no GitHub"/><br>
+        <sub>
+          <b>Maria Freitas</b>
+        </sub>
+      </a>
+    </td>
   </tr>
 </table>
