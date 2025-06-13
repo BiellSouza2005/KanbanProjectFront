@@ -74,7 +74,7 @@ Antes de começar, você precisará ter instalado:
 Clone o repositório:
 
 ```bash
-git clone https://seulinkpararepositorio.com/seu-projeto.git
+git clone https://github.com/BiellSouza2005/KanbanProjectFront.git
 ```
 
 * **⚠️ Observação Importante:** Certifique-se de que o repositório esteja na branch **main**, caso não esteja:
