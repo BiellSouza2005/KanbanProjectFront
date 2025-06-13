@@ -17,6 +17,7 @@ O sistema possui dois níveis de acesso com permissões distintas:
 
 #### 👑 Admin
 - Criar, editar e deletar tarefas (tasks).
+- **Para editar e deletar as tarefas, basta apertar o botão direito do mouse**
 - Atribuir tasks a qualquer usuário.
 - Mover os cards de qualquer usuário entre as colunas do Kanban.
 - **Exclusivo:** Apenas administradores podem mover um card para a coluna **"Completed"**.
